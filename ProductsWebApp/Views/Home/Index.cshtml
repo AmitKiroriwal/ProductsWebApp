@@ -1,0 +1,229 @@
+﻿@model ProductViewModel;
+<body>
+    <form enctype="multipart/form-data" id="myForm">
+        <div>
+            <label asp-for="Category"></label>
+        <input type="text" asp-for="Category" id="cat" /></div>
+        <div>
+            <label asp-for="SubCategory"></label>
+        <input type="text" asp-for="SubCategory" id="scat"/></div>
+       <div> <label asp-for="ProductName"></label>
+        <input type="text" asp-for="ProductName" id="pname"/></div>
+        <div>
+        <label asp-for="PhotoPath"></label>
+        <div class="custom-file">
+            <input asp-for="PhotoPath" class="custom-file-input" id="photo">
+            <div>
+            <label class="custom-file-label">Choose File</label>
+            </div>
+        </div></div>
+        <div class="form-name"> Image Size ( Width=560px, Height=390px ) (Product page)</div>
+       <div> <label asp-for="ShortDescription"></label>
+            <input type="text" asp-for="ShortDescription" id="sd" />
+        </div>
+         <h1 style="border-bottom: 1px solid #CCC; padding-bottom: 10px; margin: 20px 0 0px 0;">Description</h1>
+    <br>
+        <div id="container">
+
+            <div class="inner-container">
+                <input type="text" class="textbox" placeholder="Textbox 1">
+                <input type="text" class="textbox" placeholder="Textbox 2">
+                <input type="text" class="textbox" placeholder="Textbox 3">
+            </div>
+            <div class="inner-container"><button id="delete-container" type="button">Delet</button></div>
+        </div>
+        <div class="inner-container"><input type="text" class="container-text" asp-for="FullDescription" placeholder="All Data"></div>
+        <button id="add-container" type="button">Add More +</button>
+        
+        <h1 style="border-bottom: 1px solid #CCC; padding-bottom: 10px; margin: 20px 0 0px 0;">Features</h1>
+        <br>
+        <div class="form-raw" style="width:100%;">
+            <div class="form-name">Content</div>
+            <div class="form-txtfld" style="width:780px;">
+                <textarea style="width:100%; height:500px;" asp-for="Features" id="editor"></textarea>
+            </div>
+        </div>
+        <h1 style="border-bottom: 1px solid #CCC; padding-bottom: 10px; margin: 20px 0 0px 0;">Upload PDF</h1>
+        <br />
+        <div>
+            <label asp-for="PhotoPath"></label>
+            <div class="custom-file">
+                <input asp-for="PhotoPath" class="custom-file-input1" id="pdf">
+                <label class="custom-file-label1" id="pdfpath">Choose File</label>
+            </div>
+        </div>
+        <div class="form-raw">
+            <div class="form-name">&nbsp;</div>
+            <div class="form-txtfld add-container1" style="width: 320px; text-align: right;"><a href="#">Add More +</a></div>
+        </div>
+        <div class="form-raw">
+            <div class="form-name">Active</div>
+            <div class="form-txtfld">
+                <input type="checkbox" id="Status">
+            </div>
+            <div class="clear"></div>
+        </div>
+        <div class="form-raw">
+            <div class="form-name">&nbsp;</div>
+            <div class="form-txtfld">
+                <input type="submit" class="btn" value="Submit">
+            </div>
+        </div>
+    </form>
+
+    <div id="wrap2">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="admintable">
+            <tr>
+                <th width="53" align="left" valign="middle">Sr.No.</th>
+                <th width="153" align="left" valign="middle">Select Category</th>
+                <th width="71" align="left" valign="middle"> Select Sub Category</th>
+                <th width="71" align="left" valign="middle"> Product Name</th>
+
+                <th width="408" align="left" valign="middle">Short Description</th>
+                <th width="49" align="left" valign="middle">Full Description</th>
+                <th width="49" align="left" valign="middle">Status</th>
+
+                <th width="49" align="left" valign="middle">Edit</th>
+                <th width="61" align="left" valign="middle">Remove</th>
+            </tr>
+            <tbody id="ListData"></tbody>
+        </table>
+        <div class="clear">&nbsp;</div>
+    </div>
+</body>
+@section Scripts
+    {
+
+   <script>                                           /*  for Ck editor*/
+         ClassicEditor
+              .create( document.querySelector( '#editor' ) )
+              .catch( error => {
+                console.error( error );
+              } );
+        </script>
+
+        @*now upload imagefile*@
+        <script>
+            $(document).ready(function () {
+                $('.custom-file-input').on("change", function () {
+                    //alert($(this).val().split("\\"));
+                    var filename = $(this).val().split("\\").pop();
+                    $(this).next('.custom-file-label').html(filename);
+                });
+            });
+        </script>
+    <script>
+        $(document).ready(function () {
+            $('#pdf').on("change", function () {
+                //alert($(this).val().split("\\"));
+                var filename = $(this).val().split("\\").pop();
+                $(this).next('#pdfpath').html(filename);
+            });
+        });
+    </script>
+
+        @*now create function to add more item*@
+  <script>
+    
+        $(document).ready(function () {
+            // Add more containers
+            $('#add-container').click(function () {
+                // Clone the container and its contents
+                var $clone = $('#container').clone();
+
+                // Clear the input fields in the cloned container
+                $clone.find('.textbox').val('');
+
+                // Insert the cloned container after the original container
+                $clone.insertAfter($('#container'));
+
+                // Update the 'Delete' button's class
+                $clone.find('.delete-container').removeClass('delete-container').addClass('delete-new-container');
+            });
+
+            // Delete containers
+            $('body').on('click', '.delete-container', function () {
+                // Remove the container
+                $(this).closest('#container').remove();
+
+                // Update the 'All Data' field
+                updateAllData();
+            });
+
+            // Delete new containers
+            $('body').on('click', '.delete-new-container', function () {
+                // Remove the container
+                $(this).closest('.inner-container').parent().remove();
+
+                // Update the 'All Data' field
+                updateAllData();
+            });
+
+            // Update the 'All Data' field when input fields change
+            $('body').on('input', '.textbox', function () {
+                updateAllData();
+            });
+
+            // Update the 'All Data' field
+            function updateAllData() {
+                var allData = '';
+
+                // Loop through all containers
+                $('#container, .inner-container:has(.delete-new-container)').each(function () {
+                    // Loop through all input fields in the container
+                    $(this).find('.textbox').each(function () {
+                        allData += $(this).val() + ' ';
+                    });
+                });
+
+                // Update the 'All Data' field
+                $('.container-text').val(allData.trim());
+            }
+        });
+  </script>
+
+<script>
+        $(document).ready(function () {
+            GetData();
+            $('#myForm').submit(function (event) {
+
+                event.preventDefault();
+                $.ajax({
+                    url: '/Home/AddProduct',
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    timeout: 0,
+                    success: function (response) {
+                        ClearTextBox();
+                        GetData();
+                    },
+                    error: function () {
+                        console.log("Error Submitting data");
+                    }
+                });
+            });
+        });
+    </script>
+    <script>
+        function GetData(){
+               var html='';
+               $.ajax({
+
+                   url:'/Home/GetAllProducts',
+                    type: 'GET',
+                    dataType:'json',
+                    timeout:0,
+                   success:function(response){
+
+                       $.each(response, function(key,item){
+                        html += '<tr><td>' + item.id + '</td><td>' + item.category + '</td><td>' + item.subCategory + '</td><td>' + item.productName + '</td><td>' + item.shortDescription + '</td><td>' + item.fullDescription + '</td><td>' + item.status + '</td><td><a href="#" onClick="btnEdit(' + item.id + ')" > Edit</a></td><td><a href="#" onClick="btnDelete(' + item.id + ')"  > Delete</a></td></tr>'
+                   });
+                       $('#ListData').empty();
+                       $("#ListData").append(html);
+                   }
+               });
+           }
+       </script>
+
+  }
+
